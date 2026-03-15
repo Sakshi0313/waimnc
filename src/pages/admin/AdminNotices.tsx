@@ -1,90 +1,198 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { ExternalLink, LoaderCircle, Megaphone, Paperclip, Plus, Trash2 } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, Trash2, Megaphone } from "lucide-react";
-
-interface Notice {
-  id: number;
-  title: string;
-  content: string;
-  date: string;
-  active: boolean;
-}
-
-const initialNotices: Notice[] = [
-  { id: 1, title: "मालमत्ता कर भरणा अंतिम तारीख", content: "मालमत्ता कर भरण्याची अंतिम तारीख 31 मार्च 2026 आहे.", date: "10 मार्च 2026", active: true },
-  { id: 2, title: "पाणी पुरवठा बंद सूचना", content: "दुरुस्तीसाठी 15 मार्चला पाणी पुरवठा बंद राहील.", date: "12 मार्च 2026", active: true },
-  { id: 3, title: "स्वच्छता मोहीम", content: "रविवारी विशेष स्वच्छता मोहीम राबवली जाईल.", date: "8 मार्च 2026", active: false },
-];
+import { useToast } from "@/hooks/use-toast";
+import { isFirebaseConfigured } from "@/lib/firebase";
+import {
+  createNotice,
+  deleteNotice,
+  formatNoticeDate,
+  subscribeToAllNotices,
+  toggleNoticeStatus,
+  type NoticeRecord,
+} from "@/lib/notices";
 
 const AdminNotices = () => {
-  const [notices, setNotices] = useState<Notice[]>(initialNotices);
+  const { lang } = useLanguage();
+  const { toast } = useToast();
+  const [notices, setNotices] = useState<NoticeRecord[]>([]);
   const [newTitle, setNewTitle] = useState("");
+  const [newTitleEn, setNewTitleEn] = useState("");
   const [newContent, setNewContent] = useState("");
+  const [newContentEn, setNewContentEn] = useState("");
+  const [newTag, setNewTag] = useState("");
+  const [newTagEn, setNewTagEn] = useState("");
+  const [externalUrl, setExternalUrl] = useState("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
-  const addNotice = () => {
-    if (!newTitle.trim() || !newContent.trim()) return;
-    setNotices([
-      { id: Date.now(), title: newTitle, content: newContent, date: "आज", active: true },
-      ...notices,
-    ]);
-    setNewTitle("");
-    setNewContent("");
+  useEffect(() => {
+    if (!isFirebaseConfigured) {
+      return;
+    }
+
+    const unsubscribe = subscribeToAllNotices(setNotices);
+    return () => unsubscribe();
+  }, []);
+
+  const addNotice = async () => {
+    if (!newTitle.trim() || !newContent.trim()) {
+      return;
+    }
+
+    try {
+      setIsSaving(true);
+      await createNotice({
+        title: newTitle,
+        titleEn: newTitleEn,
+        content: newContent,
+        contentEn: newContentEn,
+        tag: newTag,
+        tagEn: newTagEn,
+        externalUrl,
+        file: selectedFile,
+      });
+
+      setNewTitle("");
+      setNewTitleEn("");
+      setNewContent("");
+      setNewContentEn("");
+      setNewTag("");
+      setNewTagEn("");
+      setExternalUrl("");
+      setSelectedFile(null);
+
+      toast({
+        title: "यशस्वी",
+        description: "सूचना Firestore मध्ये जतन केली गेली.",
+      });
+    } catch (error) {
+      toast({
+        title: "त्रुटी",
+        description: error instanceof Error ? error.message : "सूचना जतन करता आली नाही.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  const toggleActive = (id: number) => {
-    setNotices(notices.map((n) => (n.id === id ? { ...n, active: !n.active } : n)));
+  const handleToggleStatus = async (notice: NoticeRecord) => {
+    try {
+      await toggleNoticeStatus(notice.id, notice.status === "active" ? "inactive" : "active");
+    } catch (error) {
+      toast({
+        title: "त्रुटी",
+        description: error instanceof Error ? error.message : "स्थिती अद्यतनित करता आली नाही.",
+        variant: "destructive",
+      });
+    }
   };
 
-  const deleteNotice = (id: number) => {
-    setNotices(notices.filter((n) => n.id !== id));
+  const handleDelete = async (notice: NoticeRecord) => {
+    try {
+      await deleteNotice(notice);
+      toast({
+        title: "यशस्वी",
+        description: "सूचना हटवली गेली.",
+      });
+    } catch (error) {
+      toast({
+        title: "त्रुटी",
+        description: error instanceof Error ? error.message : "सूचना हटवता आली नाही.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">सूचना व्यवस्थापन</h1>
 
+      {!isFirebaseConfigured && (
+        <Card className="border-destructive/30 bg-destructive/5">
+          <CardContent className="p-4 text-sm text-muted-foreground">
+            Firebase अजून configure केलेले नाही. `.env` मध्ये `VITE_FIREBASE_*` values जोडा. Service account JSON browser app मध्ये वापरू नका.
+          </CardContent>
+        </Card>
+      )}
+
       <Card>
         <CardHeader>
           <CardTitle className="text-lg">नवीन सूचना जोडा</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <Input placeholder="सूचनेचे शीर्षक" value={newTitle} onChange={(e) => setNewTitle(e.target.value)} maxLength={200} />
-          <Textarea placeholder="सूचनेचा मजकूर" value={newContent} onChange={(e) => setNewContent(e.target.value)} maxLength={1000} />
-          <Button onClick={addNotice} className="gov-gradient text-primary-foreground">
-            <Plus className="h-4 w-4 mr-1" /> सूचना जोडा
+          <Input placeholder="सूचनेचे शीर्षक (मराठी)" value={newTitle} onChange={(e) => setNewTitle(e.target.value)} maxLength={200} />
+          <Input placeholder="Notice title (English)" value={newTitleEn} onChange={(e) => setNewTitleEn(e.target.value)} maxLength={200} />
+          <Textarea placeholder="सूचनेचा मजकूर (मराठी)" value={newContent} onChange={(e) => setNewContent(e.target.value)} maxLength={1000} />
+          <Textarea placeholder="Notice content (English)" value={newContentEn} onChange={(e) => setNewContentEn(e.target.value)} maxLength={1000} />
+          <div className="grid md:grid-cols-2 gap-3">
+            <Input placeholder="टॅग" value={newTag} onChange={(e) => setNewTag(e.target.value)} maxLength={50} />
+            <Input placeholder="Tag (English)" value={newTagEn} onChange={(e) => setNewTagEn(e.target.value)} maxLength={50} />
+          </div>
+          <Input placeholder="External link (optional)" value={externalUrl} onChange={(e) => setExternalUrl(e.target.value)} maxLength={500} />
+          <Input type="file" accept="application/pdf,image/*" onChange={(e) => setSelectedFile(e.target.files?.[0] ?? null)} />
+          <Button onClick={addNotice} className="gov-gradient text-primary-foreground" disabled={!isFirebaseConfigured || isSaving}>
+            {isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4 mr-1" />} सूचना जोडा
           </Button>
         </CardContent>
       </Card>
 
       <div className="space-y-3">
-        {notices.map((n) => (
-          <Card key={n.id} className={n.active ? "" : "opacity-60"}>
+        {notices.map((notice) => (
+          <Card key={notice.id} className={notice.status === "active" ? "" : "opacity-60"}>
             <CardContent className="p-4 flex items-start justify-between gap-4">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
                   <Megaphone className="h-4 w-4 text-primary" />
-                  <h3 className="font-semibold">{n.title}</h3>
-                  <span className={`text-xs px-2 py-0.5 rounded-full ${n.active ? "bg-green-100 text-green-800" : "bg-muted text-muted-foreground"}`}>
-                    {n.active ? "सक्रिय" : "निष्क्रिय"}
+                  <h3 className="font-semibold">{lang === "mr" ? notice.title : notice.titleEn || notice.title}</h3>
+                  <span className={`text-xs px-2 py-0.5 rounded-full ${notice.status === "active" ? "bg-green-100 text-green-800" : "bg-muted text-muted-foreground"}`}>
+                    {notice.status === "active" ? "सक्रिय" : "निष्क्रिय"}
                   </span>
                 </div>
-                <p className="text-sm text-muted-foreground">{n.content}</p>
-                <p className="text-xs text-muted-foreground mt-1">{n.date}</p>
+                <p className="text-sm text-muted-foreground">{lang === "mr" ? notice.content : notice.contentEn || notice.content}</p>
+                <p className="text-xs text-muted-foreground mt-1">{formatNoticeDate(notice.createdAt, lang)}</p>
+                <div className="flex flex-wrap items-center gap-2 mt-3">
+                  <span className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded-full">
+                    {lang === "mr" ? notice.tag : notice.tagEn || notice.tag}
+                  </span>
+                  {notice.attachmentUrl && (
+                    <a href={notice.attachmentUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs text-primary hover:underline">
+                      <Paperclip className="h-3 w-3" />
+                      {notice.attachmentName || "Attachment"}
+                    </a>
+                  )}
+                  {notice.externalUrl && (
+                    <a href={notice.externalUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs text-primary hover:underline">
+                      <ExternalLink className="h-3 w-3" />
+                      Open link
+                    </a>
+                  )}
+                </div>
               </div>
               <div className="flex gap-2 flex-shrink-0">
-                <Button size="sm" variant="outline" onClick={() => toggleActive(n.id)}>
-                  {n.active ? "बंद करा" : "सक्रिय करा"}
+                <Button size="sm" variant="outline" onClick={() => handleToggleStatus(notice)} disabled={!isFirebaseConfigured}>
+                  {notice.status === "active" ? "बंद करा" : "सक्रिय करा"}
                 </Button>
-                <Button size="sm" variant="destructive" onClick={() => deleteNotice(n.id)}>
+                <Button size="sm" variant="destructive" onClick={() => handleDelete(notice)} disabled={!isFirebaseConfigured}>
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
             </CardContent>
           </Card>
         ))}
+
+        {isFirebaseConfigured && notices.length === 0 && (
+          <Card>
+            <CardContent className="p-6 text-sm text-muted-foreground">
+              अजून कोणतीही सूचना जतन केलेली नाही.
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );

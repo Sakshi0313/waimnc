@@ -1,25 +1,51 @@
-import { useState } from "react";
-import { Lock, User, ArrowLeft } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Lock, Mail, ArrowLeft, LoaderCircle } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
+import { signInWithEmailAndPassword } from "firebase/auth";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { auth } from "@/lib/firebase";
+import { useAuth } from "@/contexts/AuthContext";
 
 const AdminLogin = () => {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user } = useAuth();
 
-  const handleLogin = (e: React.FormEvent) => {
+  // Already logged in → go straight to dashboard
+  useEffect(() => {
+    if (user) navigate("/admin/dashboard", { replace: true });
+  }, [user, navigate]);
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (username && password) {
+    if (!auth) {
+      toast({ title: "त्रुटी", description: "Firebase configure केलेले नाही.", variant: "destructive" });
+      return;
+    }
+    try {
+      setLoading(true);
+      await signInWithEmailAndPassword(auth, email.trim(), password);
       navigate("/admin/dashboard");
-    } else {
+    } catch (err: unknown) {
+      const code = (err as { code?: string }).code ?? "";
+      const messages: Record<string, string> = {
+        "auth/user-not-found": "हा ईमेल नोंदणीकृत नाही.",
+        "auth/wrong-password": "चुकीचा पासवर्ड.",
+        "auth/invalid-credential": "ईमेल किंवा पासवर्ड चुकीचा आहे.",
+        "auth/too-many-requests": "अनेक चुकीचे प्रयत्न. थोड्या वेळाने पुन्हा प्रयत्न करा.",
+      };
       toast({
-        title: "त्रुटी",
-        description: "कृपया वापरकर्ता नाव आणि पासवर्ड टाका.",
+        title: "लॉगिन अयशस्वी",
+        description: messages[code] ?? "काहीतरी चुकले. पुन्हा प्रयत्न करा.",
+        variant: "destructive",
       });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -39,17 +65,17 @@ const AdminLogin = () => {
           {/* Form */}
           <form onSubmit={handleLogin} className="p-6 space-y-5">
             <div className="space-y-2">
-              <label className="text-sm font-medium">वापरकर्ता नाव</label>
+              <label className="text-sm font-medium">ईमेल पत्ता</label>
               <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  type="text"
-                  placeholder="वापरकर्ता नाव टाका"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  type="email"
+                  placeholder="admin@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="pl-10"
                   required
-                  maxLength={50}
+                  maxLength={254}
                 />
               </div>
             </div>
@@ -70,8 +96,8 @@ const AdminLogin = () => {
               </div>
             </div>
 
-            <Button type="submit" className="w-full gov-gradient text-primary-foreground font-semibold h-11">
-              लॉगिन करा
+            <Button type="submit" className="w-full gov-gradient text-primary-foreground font-semibold h-11" disabled={loading}>
+              {loading ? <LoaderCircle className="h-4 w-4 animate-spin" /> : "लॉगिन करा"}
             </Button>
 
             <Link to="/" className="flex items-center justify-center gap-1 text-sm text-muted-foreground hover:text-primary transition-colors mt-4">

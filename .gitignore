@@ -11,6 +11,16 @@ node_modules
 dist
 dist-ssr
 *.local
+.env
+.env.*
+!.env.example
+*-firebase-adminsdk-*.json
+service-account*.json
+wainagarpalika-42dd4-firebase-adminsdk-fbsvc-54c333e14f.json
+
+# Admin user creation pages (sensitive — keep off public repos)
+src/pages/AdminSetup.tsx
+src/pages/admin/AdminCreateUser.tsx
 
 # Editor directories and files
 .vscode/*

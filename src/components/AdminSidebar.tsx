@@ -1,6 +1,6 @@
 import { 
   LayoutDashboard, FileText, Users, Megaphone, FolderOpen, 
-  Settings, Video, Calendar, ImageIcon, MessageSquare, LogOut, Building2
+  Settings, Video, Calendar, ImageIcon, MessageSquare, LogOut, Building2, UserPlus
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -29,6 +29,7 @@ const menuItems = [
   { title: "अधिकारी", url: "/admin/officials", icon: Users },
   { title: "गॅलरी", url: "/admin/gallery", icon: ImageIcon },
   { title: "सेटिंग्ज", url: "/admin/settings", icon: Settings },
+  { title: "प्रशासक तयार करा", url: "/admin/create-user", icon: UserPlus },
 ];
 
 export function AdminSidebar() {

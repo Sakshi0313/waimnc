@@ -1,5 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import heroImg1 from "@/assets/wai-hero.jpg";
 import heroImg2 from "@/assets/wai-hero-2.jpg";
@@ -33,58 +32,90 @@ const HeroSection = () => {
   const [current, setCurrent] = useState(0);
   const { t } = useLanguage();
   const slides = getSlides(t);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const autoScrollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const isUserScrolling = useRef(false);
 
-  const next = useCallback(() => {
-    setCurrent((prev) => (prev + 1) % slides.length);
-  }, [slides.length]);
+  // Scroll to a specific slide
+  const scrollToSlide = (index: number) => {
+    if (!scrollRef.current) return;
+    const width = scrollRef.current.offsetWidth;
+    scrollRef.current.scrollTo({ left: index * width, behavior: "smooth" });
+    setCurrent(index);
+  };
 
-  const prev = useCallback(() => {
-    setCurrent((prev) => (prev - 1 + slides.length) % slides.length);
-  }, [slides.length]);
-
+  // Auto-advance every 5s
   useEffect(() => {
-    const timer = setInterval(next, 5000);
-    return () => clearInterval(timer);
-  }, [next]);
+    autoScrollRef.current = setInterval(() => {
+      if (!isUserScrolling.current) {
+        const next = (current + 1) % slides.length;
+        scrollToSlide(next);
+      }
+    }, 5000);
+    return () => { if (autoScrollRef.current) clearInterval(autoScrollRef.current); };
+  }, [current, slides.length]);
+
+  // Update dot indicator when user manually scrolls
+  const handleScroll = () => {
+    if (!scrollRef.current) return;
+    isUserScrolling.current = true;
+    const width = scrollRef.current.offsetWidth;
+    const index = Math.round(scrollRef.current.scrollLeft / width);
+    setCurrent(index);
+    // Reset user-scrolling flag after scroll settles
+    clearTimeout((handleScroll as unknown as { _t?: ReturnType<typeof setTimeout> })._t);
+    (handleScroll as unknown as { _t?: ReturnType<typeof setTimeout> })._t = setTimeout(() => {
+      isUserScrolling.current = false;
+    }, 800);
+  };
 
   return (
     <section className="relative h-[420px] md:h-[500px] overflow-hidden">
-      {slides.map((slide, index) => (
-        <img
-          key={index}
-          src={slide.image}
-          alt={`Wai City ${index + 1}`}
-          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${index === current ? "opacity-100" : "opacity-0"}`}
-        />
-      ))}
-      <div className="absolute inset-0 bg-gradient-to-r from-foreground/70 via-foreground/40 to-transparent" />
-      <button onClick={prev} className="absolute left-4 top-1/2 -translate-y-1/2 z-10 bg-card/30 backdrop-blur hover:bg-card/60 text-primary-foreground rounded-full p-2 transition-colors">
-        <ChevronLeft className="h-6 w-6" />
-      </button>
-      <button onClick={next} className="absolute right-4 top-1/2 -translate-y-1/2 z-10 bg-card/30 backdrop-blur hover:bg-card/60 text-primary-foreground rounded-full p-2 transition-colors">
-        <ChevronRight className="h-6 w-6" />
-      </button>
-      <div className="absolute inset-0 flex items-center">
-        <div className="container mx-auto px-4">
-          <div className="max-w-xl">
-            <h2 className="text-3xl md:text-5xl font-extrabold text-primary-foreground text-shadow leading-tight mb-4 whitespace-pre-line">
-              {slides[current].title}
-            </h2>
-            <p className="text-primary-foreground/90 text-lg mb-6 text-shadow">{slides[current].subtitle}</p>
-            <div className="flex gap-3 flex-wrap">
-              <a href="#services" className="gov-gradient px-6 py-3 rounded-lg text-primary-foreground font-semibold hover:opacity-90 transition-opacity">
-                {t("नागरिक सेवा →", "Citizen Services →")}
-              </a>
-              <a href="#complaint" className="bg-card/90 backdrop-blur px-6 py-3 rounded-lg text-foreground font-semibold hover:bg-card transition-colors">
-                {t("तक्रार नोंदवा", "Register Complaint")}
-              </a>
+      {/* Horizontally scrollable slide strip — native touch scroll */}
+      <div
+        ref={scrollRef}
+        onScroll={handleScroll}
+        className="flex h-full overflow-x-auto"
+        style={{ scrollSnapType: "x mandatory", scrollbarWidth: "none", msOverflowStyle: "none", WebkitOverflowScrolling: "touch" } as React.CSSProperties}
+      >
+        {slides.map((slide, index) => (
+          <div
+            key={index}
+            className="relative flex-shrink-0 w-full h-full"
+            style={{ scrollSnapAlign: "start" }}
+          >
+            <img src={slide.image} alt={`Wai City ${index + 1}`} className="w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-r from-foreground/70 via-foreground/40 to-transparent" />
+            <div className="absolute inset-0 flex items-center">
+              <div className="container mx-auto px-4">
+                <div className="max-w-xl">
+                  <h2 className="text-3xl md:text-5xl font-extrabold text-primary-foreground text-shadow leading-tight mb-4 whitespace-pre-line">
+                    {slide.title}
+                  </h2>
+                  <p className="text-primary-foreground/90 text-lg mb-6 text-shadow">{slide.subtitle}</p>
+                  <div className="flex gap-3 flex-wrap">
+                    <a href="#services" className="gov-gradient px-6 py-3 rounded-lg text-primary-foreground font-semibold hover:opacity-90 transition-opacity">
+                      {t("नागरिक सेवा →", "Citizen Services →")}
+                    </a>
+                    <a href="#complaint" className="bg-card/90 backdrop-blur px-6 py-3 rounded-lg text-foreground font-semibold hover:bg-card transition-colors">
+                      {t("तक्रार नोंदवा", "Register Complaint")}
+                    </a>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
+        ))}
       </div>
+
+      {/* Dot indicators */}
       <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
         {slides.map((_, index) => (
-          <button key={index} onClick={() => setCurrent(index)} className={`w-3 h-3 rounded-full transition-all ${index === current ? "bg-primary w-8" : "bg-primary-foreground/50"}`} />
+          <button
+            key={index}
+            onClick={() => scrollToSlide(index)}
+            className={`h-3 rounded-full transition-all ${index === current ? "bg-primary w-8" : "bg-primary-foreground/50 w-3"}`}
+          />
         ))}
       </div>
     </section>

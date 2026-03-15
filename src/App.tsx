@@ -4,6 +4,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/LanguageContext";
+import { AuthProvider } from "@/contexts/AuthContext";
+import RequireAuth from "@/components/RequireAuth";
 import Index from "./pages/Index";
 import { Introduction, History, Structure, Mayor, ChiefOfficer, Corporators } from "./pages/about/AboutPages";
 import { Construction, Health, Water, Lights, Encroachment, Tax, Registration, Planning } from "./pages/departments/DepartmentPages";
@@ -22,6 +24,8 @@ import {
   AdminProjects, AdminNews, AdminSabha, AdminRoutine,
   AdminOfficials, AdminGallery, AdminSettings,
 } from "./pages/admin/AdminPlaceholders";
+import AdminCreateUser from "./pages/admin/AdminCreateUser";
+import AdminSetup from "./pages/AdminSetup";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,8 +33,7 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <LanguageProvider>
-        <Toaster />
+      <LanguageProvider>        <AuthProvider>        <Toaster />
         <Sonner />
         <BrowserRouter>
           <Routes>
@@ -77,7 +80,8 @@ const App = () => (
 
             {/* Admin */}
             <Route path="/admin" element={<AdminLogin />} />
-            <Route path="/admin" element={<AdminLayout />}>
+            <Route path="/admin/setup" element={<AdminSetup />} />
+            <Route path="/admin" element={<RequireAuth><AdminLayout /></RequireAuth>}>
               <Route path="dashboard" element={<AdminDashboard />} />
               <Route path="notices" element={<AdminNotices />} />
               <Route path="complaints" element={<AdminComplaints />} />
@@ -88,11 +92,13 @@ const App = () => (
               <Route path="officials" element={<AdminOfficials />} />
               <Route path="gallery" element={<AdminGallery />} />
               <Route path="settings" element={<AdminSettings />} />
+              <Route path="create-user" element={<AdminCreateUser />} />
             </Route>
 
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
+        </AuthProvider>
       </LanguageProvider>
     </TooltipProvider>
   </QueryClientProvider>
