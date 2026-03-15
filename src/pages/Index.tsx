@@ -1,0 +1,33 @@
+import TopHeader from "@/components/TopHeader";
+import MainNav from "@/components/MainNav";
+import HeroSection from "@/components/HeroSection";
+import QuickServices from "@/components/QuickServices";
+import MayorRoutine from "@/components/MayorRoutine";
+import Officials from "@/components/Officials";
+import NoticeBoard from "@/components/NoticeBoard";
+import LatestNews from "@/components/LatestNews";
+import Projects from "@/components/Projects";
+import ComplaintForm from "@/components/ComplaintForm";
+import Downloads from "@/components/Downloads";
+import Footer from "@/components/Footer";
+
+const Index = () => {
+  return (
+    <div className="min-h-screen bg-background font-devanagari">
+      <TopHeader />
+      <MainNav />
+      <HeroSection />
+      <QuickServices />
+      <MayorRoutine />
+      <Officials />
+      <NoticeBoard />
+      <LatestNews />
+      <Projects />
+      <ComplaintForm />
+      <Downloads />
+      <Footer />
+    </div>
+  );
+};
+
+export default Index;
