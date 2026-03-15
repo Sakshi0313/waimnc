@@ -24,8 +24,6 @@ import {
   AdminProjects, AdminNews, AdminSabha, AdminRoutine,
   AdminOfficials, AdminGallery, AdminSettings,
 } from "./pages/admin/AdminPlaceholders";
-import AdminCreateUser from "./pages/admin/AdminCreateUser";
-import AdminSetup from "./pages/AdminSetup";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -80,7 +78,6 @@ const App = () => (
 
             {/* Admin */}
             <Route path="/admin" element={<AdminLogin />} />
-            <Route path="/admin/setup" element={<AdminSetup />} />
             <Route path="/admin" element={<RequireAuth><AdminLayout /></RequireAuth>}>
               <Route path="dashboard" element={<AdminDashboard />} />
               <Route path="notices" element={<AdminNotices />} />
@@ -92,7 +89,6 @@ const App = () => (
               <Route path="officials" element={<AdminOfficials />} />
               <Route path="gallery" element={<AdminGallery />} />
               <Route path="settings" element={<AdminSettings />} />
-              <Route path="create-user" element={<AdminCreateUser />} />
             </Route>
 
             <Route path="*" element={<NotFound />} />
