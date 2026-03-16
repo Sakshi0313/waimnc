@@ -17,25 +17,27 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
-
-const menuItems = [
-  { title: "डॅशबोर्ड", url: "/admin/dashboard", icon: LayoutDashboard },
-  { title: "सूचना व्यवस्थापन", url: "/admin/notices", icon: Megaphone },
-  { title: "तक्रारी", url: "/admin/complaints", icon: MessageSquare },
-  { title: "प्रकल्प", url: "/admin/projects", icon: FolderOpen },
-  { title: "बातम्या", url: "/admin/news", icon: FileText },
-  { title: "लाईव्ह सभा", url: "/admin/sabha", icon: Video },
-  { title: "दिनक्रम", url: "/admin/routine", icon: Calendar },
-  { title: "अधिकारी", url: "/admin/officials", icon: Users },
-  { title: "गॅलरी", url: "/admin/gallery", icon: ImageIcon },
-  { title: "सेटिंग्ज", url: "/admin/settings", icon: Settings },
-];
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export function AdminSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const location = useLocation();
   const navigate = useNavigate();
+  const { t } = useLanguage();
+
+  const menuItems = [
+    { title: t("डॅशबोर्ड", "Dashboard"), url: "/admin/dashboard", icon: LayoutDashboard },
+    { title: t("सूचना व्यवस्थापन", "Notice Management"), url: "/admin/notices", icon: Megaphone },
+    { title: t("तक्रारी", "Complaints"), url: "/admin/complaints", icon: MessageSquare },
+    { title: t("प्रकल्प", "Projects"), url: "/admin/projects", icon: FolderOpen },
+    { title: t("बातम्या", "News"), url: "/admin/news", icon: FileText },
+    { title: t("लाईव्ह सभा", "Live Sabha"), url: "/admin/sabha", icon: Video },
+    { title: t("दिनक्रम", "Routine"), url: "/admin/routine", icon: Calendar },
+    { title: t("अधिकारी", "Officials"), url: "/admin/officials", icon: Users },
+    { title: t("गॅलरी", "Gallery"), url: "/admin/gallery", icon: ImageIcon },
+    { title: t("सेटिंग्ज", "Settings"), url: "/admin/settings", icon: Settings },
+  ];
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -47,15 +49,15 @@ export function AdminSidebar() {
         </div>
         {!collapsed && (
           <div className="overflow-hidden">
-            <p className="font-bold text-sm truncate">वाई नगर परिषद</p>
-            <p className="text-xs text-muted-foreground truncate">प्रशासन पॅनेल</p>
+            <p className="font-bold text-sm truncate">{t("वाई नगर परिषद", "Wai Municipal Council")}</p>
+            <p className="text-xs text-muted-foreground truncate">{t("प्रशासन पॅनेल", "Admin Panel")}</p>
           </div>
         )}
       </div>
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>मुख्य मेनू</SidebarGroupLabel>
+          <SidebarGroupLabel>{t("मुख्य मेनू", "Main Menu")}</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {menuItems.map((item) => (
@@ -85,7 +87,7 @@ export function AdminSidebar() {
           onClick={() => navigate("/admin")}
         >
           <LogOut className="mr-2 h-4 w-4" />
-          {!collapsed && "लॉगआउट"}
+          {!collapsed && t("लॉगआउट", "Logout")}
         </Button>
       </SidebarFooter>
     </Sidebar>

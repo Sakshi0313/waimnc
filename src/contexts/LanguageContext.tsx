@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 
 type Lang = "mr" | "en";
 
@@ -15,7 +15,15 @@ const LanguageContext = createContext<LanguageContextType>({
 });
 
 export const LanguageProvider = ({ children }: { children: ReactNode }) => {
-  const [lang, setLang] = useState<Lang>("mr");
+  const [lang, setLang] = useState<Lang>(() => {
+    const saved = localStorage.getItem("nss_lang");
+    return saved === "en" || saved === "mr" ? saved : "mr";
+  });
+
+  useEffect(() => {
+    localStorage.setItem("nss_lang", lang);
+  }, [lang]);
+
   const t = (mr: string, en: string) => (lang === "mr" ? mr : en);
   return (
     <LanguageContext.Provider value={{ lang, setLang, t }}>
