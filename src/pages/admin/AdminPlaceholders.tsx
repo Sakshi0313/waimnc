@@ -19,8 +19,6 @@ const AdminPlaceholder = ({ titleMr, titleEn }: { titleMr: string; titleEn: stri
   );
 };
 
-export const AdminProjects = () => <AdminPlaceholder titleMr="प्रकल्प व्यवस्थापन" titleEn="Project Management" />;
-export const AdminNews = () => <AdminPlaceholder titleMr="बातम्या व्यवस्थापन" titleEn="News Management" />;
 export const AdminSabha = () => <AdminPlaceholder titleMr="लाईव्ह सभा व्यवस्थापन" titleEn="Live Sabha Management" />;
 export const AdminRoutine = () => <AdminPlaceholder titleMr="दिनक्रम व्यवस्थापन" titleEn="Routine Management" />;
 export const AdminOfficials = () => <AdminPlaceholder titleMr="अधिकारी व्यवस्थापन" titleEn="Officials Management" />;

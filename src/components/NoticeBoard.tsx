@@ -18,7 +18,7 @@ const NoticeBoard = () => {
   }, []);
 
   return (
-    <section className="py-12 bg-background">
+    <section id="notices" className="py-12 bg-background">
       <div className="container mx-auto px-4">
         <div className="flex items-center gap-3 mb-6 justify-center">
           <Megaphone className="w-7 h-7 text-primary" />
@@ -54,9 +54,9 @@ const NoticeBoard = () => {
                         {t(notice.content || "", notice.contentEn || notice.content || "")}
                       </p>
                       <div className="flex items-center gap-2 mt-2 flex-wrap">
-                        {notice.attachmentType === "pdf" && notice.attachmentUrl && (
+                        {notice.attachmentType === "pdf" && notice.attachmentBase64 && (
                           <a
-                            href={notice.attachmentUrl}
+                            href={notice.attachmentBase64}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="inline-flex items-center gap-1 text-xs bg-destructive/10 text-destructive px-2.5 py-1 rounded-md font-medium hover:bg-destructive/20 transition-colors"
@@ -76,9 +76,9 @@ const NoticeBoard = () => {
                             {t("लिंक उघडा", "Open Link")}
                           </a>
                         )}
-                        {notice.attachmentType === "image" && notice.attachmentUrl && (
+                        {notice.attachmentType === "image" && notice.attachmentBase64 && (
                           <a
-                            href={notice.attachmentUrl}
+                            href={notice.attachmentBase64}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="inline-flex items-center gap-1 text-xs bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-md font-medium hover:bg-emerald-200 transition-colors"

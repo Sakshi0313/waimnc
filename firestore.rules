@@ -1,0 +1,72 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── NOTICES ─────────────────────────────────────────────────────────────
+    // Public: anyone can read notices (home page notice board)
+    // Admin:  only signed-in users can create/update/delete
+    match /notices/{noticeId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // ── COMPLAINTS ───────────────────────────────────────────────────────────
+    // Public: anyone can create a complaint (complaint form on home page)
+    // Admin:  only signed-in users can read all complaints and update status
+    match /complaints/{complaintId} {
+      allow create: if true;
+      allow read, update, delete: if request.auth != null;
+    }
+
+    // ── NEWS ─────────────────────────────────────────────────────────────────
+    // Public: anyone can read news (home page latest news)
+    // Admin:  only signed-in users can write
+    match /news/{newsId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // ── PROJECTS ─────────────────────────────────────────────────────────────
+    // Public: anyone can read projects (home page projects section)
+    // Admin:  only signed-in users can write
+    match /projects/{projectId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // ── ROUTINE ──────────────────────────────────────────────────────────────
+    match /routine/{id} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // ── OFFICIALS ────────────────────────────────────────────────────────────
+    match /officials/{id} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // ── GALLERY ──────────────────────────────────────────────────────────────
+    match /gallery/{id} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // ── SABHA ─────────────────────────────────────────────────────────────────
+    match /sabha/{id} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // ── SCHEMES ──────────────────────────────────────────────────────────────
+    match /schemes/{id} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // ── DENY EVERYTHING ELSE ─────────────────────────────────────────────────
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

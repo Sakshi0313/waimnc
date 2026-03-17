@@ -1,6 +1,6 @@
 import { 
   LayoutDashboard, FileText, Users, Megaphone, FolderOpen, 
-  Settings, Video, Calendar, ImageIcon, MessageSquare, LogOut, Building2
+  Settings, Video, Calendar, ImageIcon, MessageSquare, LogOut, Building2, BookOpen
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 export function AdminSidebar() {
   const { state } = useSidebar();
@@ -25,6 +26,12 @@ export function AdminSidebar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { t } = useLanguage();
+  const { logout } = useAuth();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate("/admin");
+  };
 
   const menuItems = [
     { title: t("डॅशबोर्ड", "Dashboard"), url: "/admin/dashboard", icon: LayoutDashboard },
@@ -36,6 +43,7 @@ export function AdminSidebar() {
     { title: t("दिनक्रम", "Routine"), url: "/admin/routine", icon: Calendar },
     { title: t("अधिकारी", "Officials"), url: "/admin/officials", icon: Users },
     { title: t("गॅलरी", "Gallery"), url: "/admin/gallery", icon: ImageIcon },
+    { title: t("योजना", "Schemes"), url: "/admin/schemes", icon: BookOpen },
     { title: t("सेटिंग्ज", "Settings"), url: "/admin/settings", icon: Settings },
   ];
 
@@ -84,7 +92,7 @@ export function AdminSidebar() {
         <Button
           variant="ghost"
           className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10"
-          onClick={() => navigate("/admin")}
+          onClick={handleLogout}
         >
           <LogOut className="mr-2 h-4 w-4" />
           {!collapsed && t("लॉगआउट", "Logout")}

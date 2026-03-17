@@ -1,14 +1,18 @@
+import { useEffect, useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { isFirebaseConfigured } from "@/lib/firebase";
+import { subscribeToActiveOfficials, type OfficialRecord } from "@/lib/officials";
 
 const Officials = () => {
-  const { t } = useLanguage();
+  const { lang, t } = useLanguage();
+  const [officials, setOfficials] = useState<OfficialRecord[]>([]);
 
-  const officials = [
-    { name: t("श्री. राजेश पाटील", "Mr. Rajesh Patil"), title: t("नगराध्यक्ष", "Mayor"), emoji: "👤" },
-    { name: t("श्री. सुनील कुलकर्णी", "Mr. Sunil Kulkarni"), title: t("मुख्याधिकारी", "Chief Officer"), emoji: "👤" },
-    { name: t("श्री. अमित देशमुख", "Mr. Amit Deshmukh"), title: t("जिल्हाधिकारी, सातारा", "District Collector, Satara"), emoji: "👤" },
-    { name: t("श्री. देवेंद्र फडणवीस", "Mr. Devendra Fadnavis"), title: t("मुख्यमंत्री, महाराष्ट्र", "Chief Minister, Maharashtra"), emoji: "👤" },
-  ];
+  useEffect(() => {
+    if (!isFirebaseConfigured) return;
+    return subscribeToActiveOfficials(setOfficials);
+  }, []);
+
+  if (officials.length === 0) return null;
 
   return (
     <section className="py-12 bg-card">
@@ -16,10 +20,13 @@ const Officials = () => {
         <h2 className="text-2xl font-bold text-center mb-8">{t("मान्यवर", "Officials")}</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {officials.map((o) => (
-            <div key={o.name} className="text-center">
-              <div className="w-28 h-28 mx-auto mb-3 rounded-lg bg-muted border-2 border-gov-gold flex items-center justify-center text-5xl shadow-md">{o.emoji}</div>
-              <h3 className="font-semibold text-sm">{o.name}</h3>
-              <p className="text-xs text-muted-foreground">{o.title}</p>
+            <div key={o.id} className="text-center">
+              {o.photoBase64
+                ? <img src={o.photoBase64} alt={o.nameMr} className="w-28 h-28 mx-auto mb-3 rounded-lg object-cover border-2 border-gov-gold shadow-md" />
+                : <div className="w-28 h-28 mx-auto mb-3 rounded-lg bg-muted border-2 border-gov-gold flex items-center justify-center text-5xl shadow-md">👤</div>
+              }
+              <h3 className="font-semibold text-sm">{lang === "mr" ? o.nameMr : (o.nameEn || o.nameMr)}</h3>
+              <p className="text-xs text-muted-foreground">{lang === "mr" ? o.titleMr : (o.titleEn || o.titleMr)}</p>
             </div>
           ))}
         </div>

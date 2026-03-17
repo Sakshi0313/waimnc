@@ -14,6 +14,7 @@ const getMenuItems = (t: (mr: string, en: string) => string) => [
       { label: t("नगराध्यक्ष", "Mayor"), href: "/about/mayor" },
       { label: t("मुख्याधिकारी", "Chief Officer"), href: "/about/chief-officer" },
       { label: t("नगरसेवक", "Corporators"), href: "/about/corporators" },
+      { label: t("🏛️ पर्यटन स्थळे", "🏛️ Tourist Spots"), href: "/tourism" },
     ],
   },
   {
@@ -68,9 +69,11 @@ const MainNav = () => {
     <nav className="bg-card shadow-md sticky top-0 z-50 border-b-4 border-primary">
       <div className="container mx-auto px-4 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-3 py-2">
-          <div className="w-14 h-14 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold text-xl">
-            {t("वा", "W")}
-          </div>
+          <img
+            src="/wai-logo-withoutbg.png"
+            alt="वाई नगर परिषद"
+            className="w-14 h-14 object-contain"
+          />
           <div>
             <h1 className="text-lg font-bold text-primary leading-tight">{t("वाई नगर परिषद", "Wai Municipal Council")}</h1>
             <p className="text-xs text-muted-foreground">{t("जिल्हा सातारा, महाराष्ट्र", "District Satara, Maharashtra")}</p>
@@ -118,12 +121,7 @@ const MainNav = () => {
           ))}
         </div>
 
-        <div className="hidden lg:flex items-center gap-2">
-          <div className="text-center">
-            <div className="text-2xl">🏛️</div>
-            <p className="text-[10px] text-muted-foreground">{t("सत्यमेव जयते", "Satyamev Jayate")}</p>
-          </div>
-        </div>
+
 
         <button className="lg:hidden p-2" onClick={() => setMobileOpen(!mobileOpen)}>
           {mobileOpen ? <X /> : <Menu />}

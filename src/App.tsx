@@ -6,12 +6,15 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import RequireAuth from "@/components/RequireAuth";
+import ScrollToTop from "@/components/ScrollToTop";
 import Index from "./pages/Index";
 import { Introduction, History, Structure, Mayor, ChiefOfficer, Corporators } from "./pages/about/AboutPages";
 import { Construction, Health, Water, Lights, Encroachment, Tax, Registration, Planning } from "./pages/departments/DepartmentPages";
 import { PropertyTax, WaterBill, Complaint, BirthCertificate, DeathCertificate, ConstructionPermit } from "./pages/services/ServicePages";
 import { CentralSchemes, StateSchemes, LocalSchemes, PMAY, SwachhBharat } from "./pages/schemes/SchemePages";
+import SchemesPage from "./pages/schemes/SchemesPage";
 import Tenders from "./pages/Tenders";
+import Tourism from "./pages/Tourism";
 import Gallery from "./pages/Gallery";
 import Contact from "./pages/Contact";
 import LiveSabhaPage from "./pages/LiveSabhaPage";
@@ -20,10 +23,14 @@ import AdminLayout from "./pages/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminNotices from "./pages/admin/AdminNotices";
 import AdminComplaints from "./pages/admin/AdminComplaints";
-import {
-  AdminProjects, AdminNews, AdminSabha, AdminRoutine,
-  AdminOfficials, AdminGallery, AdminSettings,
-} from "./pages/admin/AdminPlaceholders";
+import AdminNews from "./pages/admin/AdminNews";
+import AdminProjects from "./pages/admin/AdminProjects";
+import AdminRoutine from "./pages/admin/AdminRoutine";
+import AdminOfficials from "./pages/admin/AdminOfficials";
+import AdminGallery from "./pages/admin/AdminGallery";
+import AdminSabha from "./pages/admin/AdminSabha";
+import AdminSchemes from "./pages/admin/AdminSchemes";
+import { AdminSettings } from "./pages/admin/AdminPlaceholders";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,6 +41,7 @@ const App = () => (
       <LanguageProvider>        <AuthProvider>        <Toaster />
         <Sonner />
         <BrowserRouter>
+          <ScrollToTop />
           <Routes>
             <Route path="/" element={<Index />} />
 
@@ -69,9 +77,11 @@ const App = () => (
             <Route path="/schemes/local" element={<LocalSchemes />} />
             <Route path="/schemes/pmay" element={<PMAY />} />
             <Route path="/schemes/swachh-bharat" element={<SwachhBharat />} />
+            <Route path="/schemes/all" element={<SchemesPage />} />
 
             {/* Others */}
             <Route path="/tenders" element={<Tenders />} />
+            <Route path="/tourism" element={<Tourism />} />
             <Route path="/gallery" element={<Gallery />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/live-sabha" element={<LiveSabhaPage />} />
@@ -88,6 +98,7 @@ const App = () => (
               <Route path="routine" element={<AdminRoutine />} />
               <Route path="officials" element={<AdminOfficials />} />
               <Route path="gallery" element={<AdminGallery />} />
+              <Route path="schemes" element={<AdminSchemes />} />
               <Route path="settings" element={<AdminSettings />} />
             </Route>
 

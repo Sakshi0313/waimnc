@@ -1,52 +1,24 @@
-import { 
-  MessageSquare, FileText, Users, FolderOpen, TrendingUp, 
-  AlertTriangle, CheckCircle, Clock 
+import { useEffect, useState } from "react";
+import {
+  MessageSquare,
+  FileText,
+  FolderOpen,
+  TrendingUp,
+  AlertTriangle,
+  CheckCircle,
+  Clock,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useLanguage } from "@/contexts/LanguageContext";
-
-const recentComplaints = [
-  {
-    id: "TK-284",
-    subjectMr: "रस्ता खराब - वार्ड ३",
-    subjectEn: "Damaged road - Ward 3",
-    status: "pending" as const,
-    dateMr: "12 मार्च",
-    dateEn: "12 March",
-  },
-  {
-    id: "TK-283",
-    subjectMr: "पाणी पुरवठा बंद",
-    subjectEn: "Water supply stopped",
-    status: "in-progress" as const,
-    dateMr: "11 मार्च",
-    dateEn: "11 March",
-  },
-  {
-    id: "TK-282",
-    subjectMr: "स्ट्रीटलाइट बंद - गणपती पेठ",
-    subjectEn: "Streetlight off - Ganpati Peth",
-    status: "resolved" as const,
-    dateMr: "11 मार्च",
-    dateEn: "11 March",
-  },
-  {
-    id: "TK-281",
-    subjectMr: "कचरा उचलला नाही",
-    subjectEn: "Garbage not collected",
-    status: "pending" as const,
-    dateMr: "10 मार्च",
-    dateEn: "10 March",
-  },
-  {
-    id: "TK-280",
-    subjectMr: "गटार तुंबलेले",
-    subjectEn: "Drainage blockage",
-    status: "in-progress" as const,
-    dateMr: "10 मार्च",
-    dateEn: "10 March",
-  },
-];
+import { isFirebaseConfigured } from "@/lib/firebase";
+import { useAuth } from "@/contexts/AuthContext";
+import {
+  subscribeToAllComplaints,
+  formatComplaintDate,
+  type ComplaintRecord,
+} from "@/lib/complaints";
+import { subscribeToActiveNotices, type NoticeRecord } from "@/lib/notices";
+import { subscribeToActiveProjects, type ProjectRecord } from "@/lib/projects";
 
 const statusColors: Record<"pending" | "in-progress" | "resolved", string> = {
   pending: "bg-yellow-100 text-yellow-800",
@@ -56,14 +28,35 @@ const statusColors: Record<"pending" | "in-progress" | "resolved", string> = {
 
 const AdminDashboard = () => {
   const { t, lang } = useLanguage();
+  const { user } = useAuth();
+  const [complaints, setComplaints] = useState<ComplaintRecord[]>([]);
+  const [notices, setNotices] = useState<NoticeRecord[]>([]);
+  const [projects, setProjects] = useState<ProjectRecord[]>([]);
+
+  useEffect(() => {
+    if (!isFirebaseConfigured || !user) return;
+    const unsubComplaints = subscribeToAllComplaints(setComplaints);
+    const unsubNotices = subscribeToActiveNotices(setNotices);
+    const unsubProjects = subscribeToActiveProjects(setProjects);
+    return () => {
+      unsubComplaints();
+      unsubNotices();
+      unsubProjects();
+    };
+  }, [user]);
+
+  const total = complaints.length;
+  const pending = complaints.filter((c) => c.status === "pending").length;
+  const inProgress = complaints.filter((c) => c.status === "in-progress").length;
+  const resolved = complaints.filter((c) => c.status === "resolved").length;
 
   const stats = [
-    { label: t("एकूण तक्रारी", "Total Complaints"), value: "284", icon: MessageSquare, color: "text-primary" },
-    { label: t("प्रलंबित तक्रारी", "Pending Complaints"), value: "42", icon: Clock, color: "text-yellow-600" },
-    { label: t("निराकरण झालेल्या", "Resolved Complaints"), value: "230", icon: CheckCircle, color: "text-green-600" },
-    { label: t("चालू प्रकल्प", "Ongoing Projects"), value: "8", icon: FolderOpen, color: "text-blue-600" },
-    { label: t("सक्रिय सूचना", "Active Notices"), value: "15", icon: FileText, color: "text-purple-600" },
-    { label: t("नोंदणीकृत नागरिक", "Registered Citizens"), value: "1,240", icon: Users, color: "text-teal-600" },
+    { label: t("एकूण तक्रारी", "Total Complaints"), value: total, icon: MessageSquare, color: "text-primary" },
+    { label: t("प्रलंबित", "Pending"), value: pending, icon: Clock, color: "text-yellow-600" },
+    { label: t("कार्यवाही सुरू", "In Progress"), value: inProgress, icon: AlertTriangle, color: "text-blue-600" },
+    { label: t("निराकरण झालेल्या", "Resolved"), value: resolved, icon: CheckCircle, color: "text-green-600" },
+    { label: t("सक्रिय सूचना", "Active Notices"), value: notices.length, icon: FileText, color: "text-purple-600" },
+    { label: t("चालू प्रकल्प", "Ongoing Projects"), value: projects.length, icon: FolderOpen, color: "text-teal-600" },
   ];
 
   const statusLabel: Record<"pending" | "in-progress" | "resolved", string> = {
@@ -72,11 +65,18 @@ const AdminDashboard = () => {
     resolved: t("निराकरण", "Resolved"),
   };
 
+  const recentComplaints = complaints.slice(0, 5);
+
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold">{t("डॅशबोर्ड", "Dashboard")}</h1>
-        <p className="text-muted-foreground">{t("वाई नगर परिषद प्रशासकीय विहंगावलोकन", "Wai Municipal Council administrative overview")}</p>
+        <p className="text-muted-foreground">
+          {t(
+            "वाई नगर परिषद प्रशासकीय विहंगावलोकन",
+            "Wai Municipal Council administrative overview"
+          )}
+        </p>
       </div>
 
       {/* Stats Grid */}
@@ -102,19 +102,33 @@ const AdminDashboard = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
-              {recentComplaints.map((c) => (
-                <div key={c.id} className="flex items-center justify-between p-3 border border-border rounded-lg">
-                  <div>
-                    <p className="font-medium text-sm">{lang === "mr" ? c.subjectMr : c.subjectEn}</p>
-                    <p className="text-xs text-muted-foreground">{c.id} · {lang === "mr" ? c.dateMr : c.dateEn}</p>
+            {recentComplaints.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                {t("सध्या कोणत्याही तक्रारी नाहीत.", "No complaints yet.")}
+              </p>
+            ) : (
+              <div className="space-y-3">
+                {recentComplaints.map((c) => (
+                  <div
+                    key={c.id}
+                    className="flex items-center justify-between p-3 border border-border rounded-lg"
+                  >
+                    <div>
+                      <p className="font-medium text-sm line-clamp-1">{c.description}</p>
+                      <p className="text-xs text-muted-foreground">
+                        TK-{c.id.slice(-6).toUpperCase()} ·{" "}
+                        {formatComplaintDate(c.createdAt, lang)}
+                      </p>
+                    </div>
+                    <span
+                      className={`text-xs px-2 py-1 rounded-full ${statusColors[c.status]}`}
+                    >
+                      {statusLabel[c.status]}
+                    </span>
                   </div>
-                  <span className={`text-xs px-2 py-1 rounded-full ${statusColors[c.status]}`}>
-                    {statusLabel[c.status]}
-                  </span>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -129,20 +143,21 @@ const AdminDashboard = () => {
           <CardContent>
             <div className="grid grid-cols-2 gap-3">
               {[
-                { label: t("नवीन सूचना जोडा", "Add New Notice"), icon: FileText },
-                { label: t("तक्रार निराकरण", "Resolve Complaint"), icon: CheckCircle },
-                { label: t("प्रकल्प अपडेट", "Update Project"), icon: FolderOpen },
-                { label: t("बातमी प्रकाशित", "Publish News"), icon: FileText },
-                { label: t("सभा शेड्यूल", "Schedule Sabha"), icon: Clock },
-                { label: t("दिनक्रम अपडेट", "Update Routine"), icon: Users },
+                { label: t("नवीन सूचना जोडा", "Add New Notice"), icon: FileText, href: "/admin/notices" },
+                { label: t("तक्रारी पहा", "View Complaints"), icon: MessageSquare, href: "/admin/complaints" },
+                { label: t("प्रकल्प व्यवस्थापन", "Manage Projects"), icon: FolderOpen, href: "/admin/projects" },
+                { label: t("बातम्या जोडा", "Add News"), icon: FileText, href: "/admin/news" },
+                { label: t("लाईव्ह सभा", "Live Sabha"), icon: Clock, href: "/admin/sabha" },
+                { label: t("दिनक्रम", "Routine"), icon: AlertTriangle, href: "/admin/routine" },
               ].map((action) => (
-                <button
+                <a
                   key={action.label}
-                  className="flex items-center gap-2 p-3 border border-border rounded-lg hover:bg-muted/50 transition-colors text-left text-sm"
+                  href={action.href}
+                  className="flex items-center gap-2 p-3 border border-border rounded-lg hover:bg-muted/50 transition-colors text-sm"
                 >
                   <action.icon className="h-4 w-4 text-primary flex-shrink-0" />
                   {action.label}
-                </button>
+                </a>
               ))}
             </div>
           </CardContent>

@@ -1,60 +1,131 @@
-import { Calendar } from "lucide-react";
-import { useRef } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Calendar, ChevronLeft, ChevronRight, X, MapPin } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import mayorEvent1 from "@/assets/mayor-event-1.jpg";
-import mayorEvent2 from "@/assets/mayor-event-2.jpg";
-import mayorEvent3 from "@/assets/mayor-event-3.jpg";
+import { isFirebaseConfigured } from "@/lib/firebase";
+import { subscribeToActiveRoutine, type RoutineRecord } from "@/lib/routine";
+
+const RoutineModal = ({ item, onClose, lang }: { item: RoutineRecord; onClose: () => void; lang: string }) => {
+  const title = lang === "mr" ? item.titleMr : (item.titleEn || item.titleMr);
+  const desc = lang === "mr" ? item.descMr : (item.descEn || item.descMr);
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", handler);
+    document.body.style.overflow = "hidden";
+    return () => { document.removeEventListener("keydown", handler); document.body.style.overflow = ""; };
+  }, [onClose]);
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={onClose}>
+      <div
+        className="relative bg-card rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-border"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Newspaper header strip */}
+        <div className="gov-gradient text-primary-foreground px-5 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-2 text-sm font-semibold">
+            <Calendar className="h-4 w-4" />
+            {item.date}
+          </div>
+          <button onClick={onClose} className="p-1 rounded-full hover:bg-primary-foreground/20 transition-colors">
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        {/* Image */}
+        {item.imageBase64 && (
+          <div className="relative h-56 overflow-hidden">
+            <img src={item.imageBase64} alt={title} className="w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+          </div>
+        )}
+
+        {/* Content — newspaper style */}
+        <div className="p-6 space-y-4">
+          {/* Decorative rule */}
+          <div className="flex items-center gap-2">
+            <div className="h-1 w-8 bg-primary rounded-full" />
+            <div className="h-px flex-1 bg-border" />
+          </div>
+
+          <h2 className="text-xl font-bold leading-snug font-devanagari">{title}</h2>
+
+          {desc && (
+            <p className="text-muted-foreground leading-relaxed text-sm whitespace-pre-line">{desc}</p>
+          )}
+
+          <div className="flex items-center gap-2 pt-2 border-t border-border text-xs text-muted-foreground">
+            <MapPin className="h-3 w-3" />
+            <span>वाई नगर परिषद · Wai Municipal Council</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const MayorRoutine = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const { t } = useLanguage();
+  const { lang, t } = useLanguage();
+  const [items, setItems] = useState<RoutineRecord[]>([]);
+  const [selected, setSelected] = useState<RoutineRecord | null>(null);
 
-  const routineData = [
-    { date: t("12 मार्च 2026", "12 March 2026"), title: t("स्वच्छता मोहिमेचे उद्घाटन", "Cleanliness Drive Inauguration"), description: t("नगराध्यक्षांनी वार्ड क्र. ५ मध्ये स्वच्छता मोहिमेचे उद्घाटन केले.", "Mayor inaugurated the cleanliness drive in Ward No. 5."), image: mayorEvent1 },
-    { date: t("11 मार्च 2026", "11 March 2026"), title: t("रस्ता प्रकल्पाची पाहणी", "Road Project Inspection"), description: t("नवीन रस्ता बांधकाम प्रकल्पाची पाहणी केली.", "Inspected new road construction project."), image: mayorEvent2 },
-    { date: t("10 मार्च 2026", "10 March 2026"), title: t("नगरपालिका सभा", "Municipal Meeting"), description: t("नगरपालिकेच्या सर्वसाधारण सभेत अर्थसंकल्पावर चर्चा करण्यात आली.", "Budget discussion in the general meeting."), image: mayorEvent3 },
-    { date: t("9 मार्च 2026", "9 March 2026"), title: t("शाळा भेट कार्यक्रम", "School Visit Program"), description: t("वाई शहरातील नगरपालिका शाळांना भेट देऊन विद्यार्थ्यांशी संवाद साधला.", "Visited municipal schools and interacted with students."), image: mayorEvent1 },
-    { date: t("8 मार्च 2026", "8 March 2026"), title: t("महिला दिन कार्यक्रम", "Women's Day Event"), description: t("जागतिक महिला दिनानिमित्त विशेष कार्यक्रमाचे आयोजन केले.", "Special event organized for International Women's Day."), image: mayorEvent3 },
-  ];
+  useEffect(() => {
+    if (!isFirebaseConfigured) return;
+    return subscribeToActiveRoutine(setItems);
+  }, []);
 
   const scroll = (dir: "left" | "right") => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollBy({ left: dir === "left" ? -320 : 320, behavior: "smooth" });
-    }
+    scrollRef.current?.scrollBy({ left: dir === "left" ? -320 : 320, behavior: "smooth" });
   };
 
+  if (items.length === 0) return null;
+
   return (
-    <section className="py-12 bg-background">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h2 className="text-2xl md:text-3xl font-bold">📅 {t("नगराध्यक्ष दिनक्रम", "Mayor's Daily Routine")}</h2>
-            <p className="text-muted-foreground mt-1">{t("नगराध्यक्षांचे दैनंदिन उपक्रम", "Daily activities of the Mayor")}</p>
-          </div>
-          <div className="flex gap-2">
-            <button onClick={() => scroll("left")} className="p-2 rounded-full border border-border hover:bg-muted transition-colors"><ChevronLeft className="h-5 w-5" /></button>
-            <button onClick={() => scroll("right")} className="p-2 rounded-full border border-border hover:bg-muted transition-colors"><ChevronRight className="h-5 w-5" /></button>
-          </div>
-        </div>
-        <div ref={scrollRef} className="flex gap-5 overflow-x-auto pb-4 scrollbar-hide" style={{ scrollbarWidth: "none" }}>
-          {routineData.map((item, i) => (
-            <div key={i} className="min-w-[280px] max-w-[300px] bg-card rounded-xl shadow-md border border-border overflow-hidden flex-shrink-0 hover:shadow-lg transition-shadow">
-              <div className="relative h-48">
-                <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
-                <div className="absolute top-3 left-3 bg-primary text-primary-foreground text-xs font-semibold px-3 py-1 rounded-full flex items-center gap-1">
-                  <Calendar className="h-3 w-3" /> {item.date}
-                </div>
-              </div>
-              <div className="p-4">
-                <h3 className="font-bold text-base mb-1">{item.title}</h3>
-                <p className="text-sm text-muted-foreground line-clamp-3">{item.description}</p>
-              </div>
+    <>
+      <section className="py-12 bg-background">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h2 className="text-2xl md:text-3xl font-bold">📅 {t("नगराध्यक्ष दिनक्रम", "Mayor's Daily Routine")}</h2>
+              <p className="text-muted-foreground mt-1">{t("नगराध्यक्षांचे दैनंदिन उपक्रम — अधिक माहितीसाठी क्लिक करा", "Daily activities of the Mayor — click for details")}</p>
             </div>
-          ))}
+            <div className="flex gap-2">
+              <button onClick={() => scroll("left")} className="p-2 rounded-full border border-border hover:bg-muted transition-colors"><ChevronLeft className="h-5 w-5" /></button>
+              <button onClick={() => scroll("right")} className="p-2 rounded-full border border-border hover:bg-muted transition-colors"><ChevronRight className="h-5 w-5" /></button>
+            </div>
+          </div>
+          <div ref={scrollRef} className="flex gap-5 overflow-x-auto pb-4 scrollbar-hide" style={{ scrollbarWidth: "none" }}>
+            {items.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => setSelected(item)}
+                className="min-w-[280px] max-w-[300px] bg-card rounded-xl shadow-md border border-border overflow-hidden flex-shrink-0 hover:shadow-lg hover:border-primary/50 transition-all text-left group"
+              >
+                <div className="relative h-48">
+                  {item.imageBase64
+                    ? <img src={item.imageBase64} alt={item.titleMr} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                    : <div className="w-full h-full bg-muted flex items-center justify-center"><Calendar className="h-12 w-12 text-muted-foreground" /></div>
+                  }
+                  <div className="absolute top-3 left-3 bg-primary text-primary-foreground text-xs font-semibold px-3 py-1 rounded-full flex items-center gap-1">
+                    <Calendar className="h-3 w-3" /> {item.date}
+                  </div>
+                  <div className="absolute bottom-2 right-2 bg-black/50 text-white text-[10px] px-2 py-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                    {t("अधिक पहा", "Read more")}
+                  </div>
+                </div>
+                <div className="p-4">
+                  <h3 className="font-bold text-base mb-1 line-clamp-2">{lang === "mr" ? item.titleMr : (item.titleEn || item.titleMr)}</h3>
+                  <p className="text-sm text-muted-foreground line-clamp-2">{lang === "mr" ? item.descMr : (item.descEn || item.descMr)}</p>
+                </div>
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+
+      {selected && <RoutineModal item={selected} lang={lang} onClose={() => setSelected(null)} />}
+    </>
   );
 };
 

@@ -1,30 +1,22 @@
 import { useState, useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
-import heroImg1 from "@/assets/wai-hero.jpg";
-import heroImg2 from "@/assets/wai-hero-2.jpg";
-import heroImg3 from "@/assets/wai-hero-3.jpg";
-import heroImg4 from "@/assets/wai-hero-4.jpg";
 
 const getSlides = (t: (mr: string, en: string) => string) => [
   {
-    image: heroImg1,
+    image: "/wai-temple.jpg",
     title: t("स्वच्छ, सुंदर आणि\nस्मार्ट वाई शहर", "Clean, Beautiful &\nSmart Wai City"),
     subtitle: t("शिवछत्रपतींच्या पावन भूमीवर, कृष्णा नदीच्या तीरावर वसलेले ऐतिहासिक वाई शहर", "Historic Wai city situated on the banks of Krishna River, on the sacred land of Shivchhatrapati"),
   },
   {
-    image: heroImg2,
-    title: t("ऐतिहासिक मंदिरे\nआणि वारसा", "Historic Temples\n& Heritage"),
-    subtitle: t("कृष्णा नदीच्या तीरावरील प्राचीन मंदिरे आणि सांस्कृतिक वारसा", "Ancient temples and cultural heritage along the banks of Krishna River"),
+    image: "/mandhardevi.jpg",
+    title: t("मांढरदेवी देवस्थान\nवाई", "Mandhardevi Temple\nWai"),
+    subtitle: t("सातारा जिल्ह्यातील प्रसिद्ध मांढरदेवी देवीचे पवित्र स्थान", "The sacred shrine of Mandhardevi Goddess in Satara district"),
   },
   {
-    image: heroImg3,
-    title: t("धार्मिक पर्यटन\nस्थळ वाई", "Religious Tourism\nDestination Wai"),
-    subtitle: t("महाराष्ट्रातील प्रमुख तीर्थक्षेत्र आणि पर्यटन स्थळ", "Major pilgrimage and tourist destination in Maharashtra"),
-  },
-  {
-    image: heroImg4,
-    title: t("कृष्णा नदीचे\nपवित्र घाट", "Sacred Ghats of\nKrishna River"),
-    subtitle: t("वाई शहरातील प्रसिद्ध कृष्णा नदीचे घाट आणि स्नानघाट", "Famous ghats and bathing ghats of Krishna River in Wai"),
+    image: "/Kamalgad.jpg",
+    title: t("कमळगड किल्ला\nवाई", "Kamalgad Fort\nWai"),
+    subtitle: t("वाई परिसरातील ऐतिहासिक कमळगड किल्ला — पर्यटकांचे आवडते ठिकाण", "Historic Kamalgad Fort near Wai — a favourite destination for trekkers and tourists"),
   },
 ];
 
@@ -94,12 +86,9 @@ const HeroSection = () => {
                   </h2>
                   <p className="text-primary-foreground/90 text-lg mb-6 text-shadow">{slide.subtitle}</p>
                   <div className="flex gap-3 flex-wrap">
-                    <a href="#services" className="gov-gradient px-6 py-3 rounded-lg text-primary-foreground font-semibold hover:opacity-90 transition-opacity">
-                      {t("नागरिक सेवा →", "Citizen Services →")}
-                    </a>
-                    <a href="#complaint" className="bg-card/90 backdrop-blur px-6 py-3 rounded-lg text-foreground font-semibold hover:bg-card transition-colors">
-                      {t("तक्रार नोंदवा", "Register Complaint")}
-                    </a>
+                    <Link to="/tourism" className="bg-white/20 backdrop-blur border border-white/40 px-6 py-3 rounded-lg text-primary-foreground font-semibold hover:bg-white/30 transition-colors">
+                      {t("अधिक माहिती →", "More Info →")}
+                    </Link>
                   </div>
                 </div>
               </div>

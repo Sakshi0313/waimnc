@@ -8,7 +8,6 @@ import NoticeBoard from "@/components/NoticeBoard";
 import LatestNews from "@/components/LatestNews";
 import Projects from "@/components/Projects";
 import ComplaintForm from "@/components/ComplaintForm";
-import Downloads from "@/components/Downloads";
 import Footer from "@/components/Footer";
 
 const Index = () => {
@@ -24,7 +23,6 @@ const Index = () => {
       <LatestNews />
       <Projects />
       <ComplaintForm />
-      <Downloads />
       <Footer />
     </div>
   );

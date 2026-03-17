@@ -43,9 +43,9 @@ export const storage = app ? getStorage(app) : null;
 export const auth = app ? getAuth(app) : null;
 
 export function assertFirebaseConfigured() {
-  if (!app || !db || !storage) {
+  if (!app || !db) {
     throw new Error("Firebase is not configured. Add VITE_FIREBASE_* values to your .env file.");
   }
 
-  return { app, db, storage, auth };
+  return { app, db, auth };
 }
