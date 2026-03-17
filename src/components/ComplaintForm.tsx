@@ -65,7 +65,7 @@ const ComplaintForm = () => {
     try {
       setSubmitting(true);
       const record = await createComplaint({ name, mobile, ward, type, department, description, files });
-      setTrackingId(`TK-${record.id.slice(-8).toUpperCase()}`);
+      setTrackingId(`TK-${record.id.slice(-6).toUpperCase()}`);
       form.reset();
       setFiles([]);
     } catch (err) {

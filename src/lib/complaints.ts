@@ -1,6 +1,7 @@
 import {
   collection,
   doc,
+  getDocs,
   onSnapshot,
   orderBy,
   query,
@@ -183,4 +184,21 @@ export function formatComplaintDate(timestamp: number, locale: "mr" | "en") {
     locale === "mr" ? "mr-IN" : "en-IN",
     { day: "2-digit", month: "long", year: "numeric" }
   );
+}
+
+export async function getComplaintByTrackingId(
+  trackingId: string,
+  mobile: string
+): Promise<ComplaintRecord | null> {
+  // trackingId format: "TK-XXXXXX" = last 6 chars of doc id (uppercase)
+  const suffix = trackingId.replace(/^TK-/i, "").toLowerCase();
+  const q = query(collectionRef(), orderBy("createdAt", "desc"));
+  const snap = await getDocs(q);
+  const match = snap.docs.find(
+    (d) =>
+      d.id.slice(-6).toLowerCase() === suffix &&
+      (d.data() as ComplaintRecord).mobile === mobile.trim()
+  );
+  if (!match) return null;
+  return mapComplaint(match.id, match.data() as Partial<ComplaintRecord>);
 }

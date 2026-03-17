@@ -15,6 +15,7 @@ import { CentralSchemes, StateSchemes, LocalSchemes, PMAY, SwachhBharat } from "
 import SchemesPage from "./pages/schemes/SchemesPage";
 import Tenders from "./pages/Tenders";
 import Tourism from "./pages/Tourism";
+import TrackPage from "./pages/TrackPage";
 import Gallery from "./pages/Gallery";
 import Contact from "./pages/Contact";
 import LiveSabhaPage from "./pages/LiveSabhaPage";
@@ -81,6 +82,7 @@ const App = () => (
 
             {/* Others */}
             <Route path="/tenders" element={<Tenders />} />
+            <Route path="/track" element={<TrackPage />} />
             <Route path="/tourism" element={<Tourism />} />
             <Route path="/gallery" element={<Gallery />} />
             <Route path="/contact" element={<Contact />} />

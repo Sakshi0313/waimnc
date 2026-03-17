@@ -52,6 +52,7 @@ const getMenuItems = (t: (mr: string, en: string) => string) => [
     ],
   },
   { label: t("निविदा", "Tenders"), href: "/tenders" },
+  { label: t("🔍 अर्ज ट्रॅक करा", "🔍 Track Application"), href: "/track" },
   { label: t("🎥 लाईव्ह सभा", "🎥 Live Sabha"), href: "/live-sabha" },
   { label: t("गॅलरी", "Gallery"), href: "/gallery" },
   { label: t("संपर्क", "Contact"), href: "/contact" },
