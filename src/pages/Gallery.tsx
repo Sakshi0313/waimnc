@@ -1,20 +1,28 @@
 import { useEffect, useState } from "react";
-import { Play, ImageIcon, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { Play, ImageIcon, X, ChevronLeft, ChevronRight, Calendar } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PageLayout from "@/components/PageLayout";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { isFirebaseConfigured } from "@/lib/firebase";
 import { subscribeToActiveGallery, type GalleryRecord } from "@/lib/gallery";
+import { subscribeToActiveRoutine, type RoutineRecord } from "@/lib/routine";
+import { useLocation } from "react-router-dom";
 
 const Gallery = () => {
   const { lang, t } = useLanguage();
+  const location = useLocation();
+  const defaultTab = (location.state as { tab?: string } | null)?.tab === "routine" ? "routine" : "photos";
   const [items, setItems] = useState<GalleryRecord[]>([]);
+  const [routines, setRoutines] = useState<RoutineRecord[]>([]);
   const [lightbox, setLightbox] = useState<{ index: number; list: GalleryRecord[] } | null>(null);
+  const [routineLightbox, setRoutineLightbox] = useState<{ index: number } | null>(null);
 
   useEffect(() => {
     if (!isFirebaseConfigured) return;
-    return subscribeToActiveGallery(setItems);
+    const u1 = subscribeToActiveGallery(setItems);
+    const u2 = subscribeToActiveRoutine(setRoutines);
+    return () => { u1(); u2(); };
   }, []);
 
   const photos = items.filter((i) => i.type === "photo");
@@ -38,16 +46,29 @@ const Gallery = () => {
     return () => window.removeEventListener("keydown", handler);
   }, [lightbox]);
 
+  // routine lightbox keyboard
+  useEffect(() => {
+    if (!routineLightbox) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft") setRoutineLightbox((r) => r ? { index: (r.index - 1 + routines.length) % routines.length } : null);
+      else if (e.key === "ArrowRight") setRoutineLightbox((r) => r ? { index: (r.index + 1) % routines.length } : null);
+      else if (e.key === "Escape") setRoutineLightbox(null);
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [routineLightbox, routines.length]);
+
   const active = lightbox ? lightbox.list[lightbox.index] : null;
 
   return (
     <PageLayout>
       <div className="container mx-auto px-4 py-10 space-y-6">
         <h1 className="text-3xl font-bold text-primary">{t("गॅलरी", "Gallery")}</h1>
-        <Tabs defaultValue="photos">
+        <Tabs defaultValue={defaultTab}>
           <TabsList>
             <TabsTrigger value="photos">{t("फोटो गॅलरी", "Photo Gallery")} ({photos.length})</TabsTrigger>
             <TabsTrigger value="videos">{t("व्हिडिओ गॅलरी", "Video Gallery")} ({videos.length})</TabsTrigger>
+            <TabsTrigger value="routine">📅 {t("दैनंदिन दिनक्रम", "Daily Routines")} ({routines.length})</TabsTrigger>
           </TabsList>
 
           <TabsContent value="photos" className="mt-4">
@@ -100,6 +121,32 @@ const Gallery = () => {
               ))}
             </div>
           </TabsContent>
+
+          {/* Daily Routines tab */}
+          <TabsContent value="routine" className="mt-4">
+            {routines.length === 0 && (
+              <p className="text-sm text-muted-foreground">{t("कोणतेही दिनक्रम उपलब्ध नाहीत.", "No routine entries available.")}</p>
+            )}
+            <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {routines.map((r, i) => (
+                <Card key={r.id} className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer group" onClick={() => setRoutineLightbox({ index: i })}>
+                  <div className="aspect-video bg-primary/10 flex items-center justify-center overflow-hidden relative">
+                    {r.imageBase64
+                      ? <img src={r.imageBase64} alt={r.titleMr} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                      : <Calendar className="h-10 w-10 text-muted-foreground" />
+                    }
+                    <div className="absolute top-2 left-2 bg-primary text-primary-foreground text-[10px] font-semibold px-2 py-0.5 rounded-full">
+                      {r.date}
+                    </div>
+                  </div>
+                  <CardContent className="p-3">
+                    <p className="text-sm font-semibold truncate">{lang === "mr" ? r.titleMr : (r.titleEn || r.titleMr)}</p>
+                    <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{lang === "mr" ? r.descMr : (r.descEn || r.descMr)}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </TabsContent>
         </Tabs>
       </div>
 
@@ -142,6 +189,38 @@ const Gallery = () => {
           )}
         </div>
       )}
+      {/* Routine Lightbox */}
+      {routineLightbox && (() => {
+        const r = routines[routineLightbox.index];
+        const title = lang === "mr" ? r.titleMr : (r.titleEn || r.titleMr);
+        const desc = lang === "mr" ? r.descMr : (r.descEn || r.descMr);
+        return (
+          <div className="fixed inset-0 z-50 bg-black/90 flex flex-col items-center justify-center p-4" onClick={() => setRoutineLightbox(null)}>
+            <button className="absolute top-4 right-4 text-white z-10" onClick={() => setRoutineLightbox(null)}><X className="w-8 h-8" /></button>
+            {routines.length > 1 && (
+              <button className="absolute left-3 top-1/2 -translate-y-1/2 text-white bg-black/40 rounded-full p-2 z-10"
+                onClick={(e) => { e.stopPropagation(); setRoutineLightbox({ index: (routineLightbox.index - 1 + routines.length) % routines.length }); }}>
+                <ChevronLeft className="w-7 h-7" />
+              </button>
+            )}
+            <div className="max-w-2xl w-full flex flex-col items-center gap-4" onClick={(e) => e.stopPropagation()}>
+              {r.imageBase64 && <img src={r.imageBase64} alt={title} className="max-h-[55vh] w-auto rounded-xl object-contain shadow-2xl" />}
+              <div className="text-center space-y-2 bg-black/50 rounded-xl px-6 py-4 max-w-lg w-full">
+                <span className="text-xs text-primary font-semibold bg-primary/20 px-3 py-0.5 rounded-full">{r.date}</span>
+                <p className="text-white font-bold text-lg">{title}</p>
+                {desc && <p className="text-gray-300 text-sm leading-relaxed whitespace-pre-line">{desc}</p>}
+                <p className="text-gray-500 text-xs">{routineLightbox.index + 1} / {routines.length}</p>
+              </div>
+            </div>
+            {routines.length > 1 && (
+              <button className="absolute right-3 top-1/2 -translate-y-1/2 text-white bg-black/40 rounded-full p-2 z-10"
+                onClick={(e) => { e.stopPropagation(); setRoutineLightbox({ index: (routineLightbox.index + 1) % routines.length }); }}>
+                <ChevronRight className="w-7 h-7" />
+              </button>
+            )}
+          </div>
+        );
+      })()}
     </PageLayout>
   );
 };

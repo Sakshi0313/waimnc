@@ -1,5 +1,6 @@
 import { Calendar, ChevronLeft, ChevronRight, X, MapPin } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { isFirebaseConfigured } from "@/lib/firebase";
 import { subscribeToActiveRoutine, type RoutineRecord } from "@/lib/routine";
@@ -81,6 +82,9 @@ const MayorRoutine = () => {
 
   if (items.length === 0) return null;
 
+  // Show only latest 7 entries (FIFO — newest first, oldest drops off)
+  const displayed = items.slice(0, 7);
+
   return (
     <>
       <section className="py-12 bg-background">
@@ -90,13 +94,20 @@ const MayorRoutine = () => {
               <h2 className="text-2xl md:text-3xl font-bold">📅 {t("नगराध्यक्ष दिनक्रम", "Mayor's Daily Routine")}</h2>
               <p className="text-muted-foreground mt-1">{t("नगराध्यक्षांचे दैनंदिन उपक्रम — अधिक माहितीसाठी क्लिक करा", "Daily activities of the Mayor — click for details")}</p>
             </div>
-            <div className="flex gap-2">
+            <div className="flex items-center gap-2">
+              <Link
+                to="/gallery"
+                className="text-sm text-primary hover:underline font-medium hidden sm:block"
+                state={{ tab: "routine" }}
+              >
+                {t("सर्व पहा →", "View All →")}
+              </Link>
               <button onClick={() => scroll("left")} className="p-2 rounded-full border border-border hover:bg-muted transition-colors"><ChevronLeft className="h-5 w-5" /></button>
               <button onClick={() => scroll("right")} className="p-2 rounded-full border border-border hover:bg-muted transition-colors"><ChevronRight className="h-5 w-5" /></button>
             </div>
           </div>
           <div ref={scrollRef} className="flex gap-5 overflow-x-auto pb-4 scrollbar-hide" style={{ scrollbarWidth: "none" }}>
-            {items.map((item) => (
+            {displayed.map((item) => (
               <button
                 key={item.id}
                 onClick={() => setSelected(item)}
