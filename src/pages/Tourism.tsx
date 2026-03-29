@@ -1,6 +1,13 @@
+import { useEffect, useRef, useState } from "react";
 import PageLayout from "@/components/PageLayout";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { MapPin, Camera, Mountain, Clock } from "lucide-react";
+import { MapPin, Camera, Mountain, Clock, ChevronLeft, ChevronRight } from "lucide-react";
+
+const heroImages = [
+  { src: "/wai-temple.jpg", labelMr: "वाई महागणपती मंदिर", labelEn: "Wai Mahaganpati Temple" },
+  { src: "/mandhardevi.jpg", labelMr: "मांढरदेवी देवस्थान", labelEn: "Mandhardevi Temple" },
+  { src: "/Kamalgad.jpg", labelMr: "कमळगड किल्ला", labelEn: "Kamalgad Fort" },
+];
 
 const spots = [
   {
@@ -11,13 +18,14 @@ const spots = [
     tagEn: "Religious Site",
     icon: Camera,
     descMr:
-      "वाई शहरातील प्रसिद्ध महागणपती मंदिर कृष्णा नदीच्या तीरावर वसलेले आहे. हे मंदिर अष्टविनायकांपैकी एक मानले जाते. दरवर्षी लाखो भाविक येथे दर्शनासाठी येतात. मंदिराची स्थापत्यकला अत्यंत सुंदर असून नदीकाठचे वातावरण मनाला शांती देते.",
+      "वाईची मुख्य ओळख असलेले हे मंदिर १७६२ मध्ये सरदार गणपतराव भिकाजी रास्ते यांनी कृष्णा घाटावर बांधले. हे वाईतील सर्वात भव्य मंदिर असून येथील गणेशाची मूर्ती ६ फूट उंच आणि ७ फूट लांब आहे. एकाच अखंड दगडातून घडवलेली ही 'बैठी' पाषाणमूर्ती आणि मंदिराचा विस्तीर्ण कमानीयुक्त सभामंडप पर्यटकांचे मुख्य आकर्षण आहे.",
     descEn:
-      "The famous Mahaganpati Temple in Wai is situated on the banks of the Krishna River. This temple is considered one of the Ashtavinayak shrines. Lakhs of devotees visit here every year. The temple's architecture is beautiful and the riverside atmosphere brings peace of mind.",
+      "A landmark of Wai’s heritage, this temple was built in 1762 by Sardar Ganpatrao Bhikaji Raste on the banks of the Krishna River. It is the largest and most magnificent temple in the region, featuring a massive seated stone idol of Lord Ganesha, measuring 6 feet in height and 7 feet in width. The temple is renowned for its grand hall with elegant arches and its impressive Peshwa-era architecture.",
     timeMr: "सकाळी ५:०० ते रात्री ९:३०",
     timeEn: "5:00 AM to 9:30 PM",
     locationMr: "कृष्णा नदी तीर, वाई, सातारा",
     locationEn: "Krishna River Bank, Wai, Satara",
+    locationUrl: "https://maps.app.goo.gl/YmfqZVH5grFNiaxX6",
   },
   {
     image: "/mandhardevi.jpg",
@@ -34,6 +42,7 @@ const spots = [
     timeEn: "6:00 AM to 7:00 PM",
     locationMr: "मांढरदेवी डोंगर, वाई तालुका, सातारा",
     locationEn: "Mandhardevi Hill, Wai Taluka, Satara",
+    locationUrl: null,
   },
   {
     image: "/Kamalgad.jpg",
@@ -50,26 +59,83 @@ const spots = [
     timeEn: "Sunrise to Sunset",
     locationMr: "कमळगड, वाई तालुका, सातारा",
     locationEn: "Kamalgad, Wai Taluka, Satara",
+    locationUrl: null,
   },
 ];
 
 const Tourism = () => {
   const { t, lang } = useLanguage();
+  const [current, setCurrent] = useState(0);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const startTimer = () => {
+    timerRef.current = setInterval(() => {
+      setCurrent((prev) => (prev + 1) % heroImages.length);
+    }, 3500);
+  };
+
+  useEffect(() => {
+    startTimer();
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+  }, []);
+
+  const goTo = (index: number) => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    setCurrent((index + heroImages.length) % heroImages.length);
+    startTimer();
+  };
 
   return (
     <PageLayout>
-      {/* Hero banner */}
-      <div className="relative h-64 md:h-80 overflow-hidden">
-        <img src="/wai-temple.jpg" alt="Wai Tourism" className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent flex items-end">
+      {/* Hero Slider */}
+      <div className="relative h-64 md:h-80 overflow-hidden group">
+        {heroImages.map((img, i) => (
+          <div
+            key={img.src}
+            className={`absolute inset-0 transition-opacity duration-700 ${i === current ? "opacity-100 z-10" : "opacity-0 z-0"}`}
+          >
+            <img src={img.src} alt={lang === "mr" ? img.labelMr : img.labelEn} className="w-full h-full object-cover" />
+          </div>
+        ))}
+
+        {/* Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent z-20 flex items-end">
           <div className="container mx-auto px-4 pb-8">
             <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-2">
               {t("वाई पर्यटन", "Wai Tourism")}
             </h1>
             <p className="text-white/80 text-lg">
-              {t("ऐतिहासिक, धार्मिक आणि निसर्गरम्य वाई शहर", "Historic, Religious & Scenic Wai City")}
+              {lang === "mr" ? heroImages[current].labelMr : heroImages[current].labelEn}
             </p>
           </div>
+        </div>
+
+        {/* Prev / Next */}
+        <button
+          onClick={() => goTo(current - 1)}
+          className="absolute left-3 top-1/2 -translate-y-1/2 z-30 bg-black/40 hover:bg-black/60 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
+          aria-label="Previous"
+        >
+          <ChevronLeft className="h-5 w-5" />
+        </button>
+        <button
+          onClick={() => goTo(current + 1)}
+          className="absolute right-3 top-1/2 -translate-y-1/2 z-30 bg-black/40 hover:bg-black/60 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
+          aria-label="Next"
+        >
+          <ChevronRight className="h-5 w-5" />
+        </button>
+
+        {/* Dots */}
+        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-30 flex gap-2">
+          {heroImages.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => goTo(i)}
+              className={`w-2.5 h-2.5 rounded-full transition-all ${i === current ? "bg-white scale-125" : "bg-white/50"}`}
+              aria-label={`Slide ${i + 1}`}
+            />
+          ))}
         </div>
       </div>
 
@@ -118,7 +184,14 @@ const Tourism = () => {
                   <div className="flex items-center gap-2 text-sm">
                     <MapPin className="h-4 w-4 text-primary flex-shrink-0" />
                     <span className="text-muted-foreground">{t("ठिकाण", "Location")}:</span>
-                    <span className="font-medium">{lang === "mr" ? spot.locationMr : spot.locationEn}</span>
+                    <a
+                      href={spot.locationUrl ?? `https://www.google.com/maps/search/${encodeURIComponent(lang === "mr" ? spot.locationMr : spot.locationEn)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-medium text-primary underline hover:opacity-80"
+                    >
+                      {lang === "mr" ? spot.locationMr : spot.locationEn}
+                    </a>
                   </div>
                 </div>
               </div>
