@@ -35,31 +35,48 @@ const spots = [
     tagEn: "Religious / Trekking",
     icon: Mountain,
     descMr:
-      "मांढरदेवी हे सातारा जिल्ह्यातील एक प्रसिद्ध देवस्थान आहे. डोंगरावर वसलेल्या या मंदिरापर्यंत पोहोचण्यासाठी ट्रेकिंग करावी लागते. नवरात्रीत येथे मोठी यात्रा भरते. उंचावरून दिसणारे सह्याद्रीचे विहंगम दृश्य पर्यटकांना मोहित करते.",
+      "वाई तालुक्यातील मांढरदेव येथे समुद्रसपाटीपासून सुमारे ४,६५० फूट उंचीवर आई काळुबाईचे प्राचीन मंदिर वसलेले आहे. लाखो भाविकांचे श्रद्धास्थान आणि कुलदैवत असलेल्या या देवीचे मंदिर साधारण ३५० ते ४०० वर्षे जुने आहे. निसर्गरम्य डोंगरमाथ्यावर असलेले हे मंदिर त्याच्या ऐतिहासिक आणि धार्मिक महत्त्वासाठी प्रसिद्ध असून, दरवर्षी पौष पौर्णिमेला येथे मोठी 'काळुबाईची जत्रा' भरते. या ठिकाणाहून पांडवगड आणि पुरंदर किल्ल्यांचे विलोभनीय दर्शन घडते.",
     descEn:
-      "Mandhardevi is a famous temple in Satara district. Trekking is required to reach this hilltop temple. A grand fair is held here during Navratri. The panoramic view of the Sahyadri mountains from the top mesmerizes tourists.",
+      "Perched at an altitude of approximately 4,650 feet above sea level in Mandhardeo village, this ancient temple is dedicated to Goddess Kalubai, the revered family deity of millions. The temple is nearly 350 to 400 years old and holds immense historical and religious significance. Located atop a scenic hill, it offers breathtaking views of the Pandavgad and Purandar forts. The temple is best known for its grand annual fair, the 'Kalubai Jatra,' held during Paush Purnima.",
     timeMr: "सकाळी ६:०० ते संध्याकाळी ७:००",
     timeEn: "6:00 AM to 7:00 PM",
     locationMr: "मांढरदेवी डोंगर, वाई तालुका, सातारा",
     locationEn: "Mandhardevi Hill, Wai Taluka, Satara",
-    locationUrl: null,
+    locationUrl: "https://maps.app.goo.gl/sqKxq4hqU1fwmFbM8",
   },
   {
     image: "/Kamalgad.jpg",
-    nameMr: "कमळगड किल्ला",
-    nameEn: "Kamalgad Fort",
+    nameMr: "कमळगड किल्ला (कत्तलगड)",
+    nameEn: "Kamalgad Fort (Kattalgad)",
     tagMr: "ऐतिहासिक / ट्रेकिंग",
     tagEn: "Historical / Trekking",
     icon: Mountain,
     descMr:
-      "कमळगड हा वाई परिसरातील एक ऐतिहासिक किल्ला आहे. छत्रपती शिवाजी महाराजांच्या काळातील या किल्ल्याला ऐतिहासिक महत्त्व आहे. किल्ल्यावरून सह्याद्रीच्या रांगा आणि कृष्णा खोऱ्याचे अप्रतिम दृश्य दिसते. ट्रेकर्ससाठी हे एक आवडते ठिकाण आहे.",
+      "समुद्रसपाटीपासून ४,५११ फूट उंचीवर असलेला कमळगड हा त्याच्या नैसर्गिक रचनेसाठी प्रसिद्ध आहे. या किल्ल्याला इतर किल्ल्यांसारखी तटबंदी किंवा दरवाजे नसून, चहूबाजूंच्या अवाढव्य नैसर्गिक कड्यांमुळेच याला अभेद्यपणा प्राप्त झाला आहे. याला 'कत्तलगड' म्हणूनही ओळखले जाते, कारण ब्रिटिश काळात याचा उपयोग कैद्यांना फाशी देण्यासाठी केला जात असे. येथील मुख्य आकर्षण म्हणजे खडकात खोदलेली 'कावेची विहीर' (Geruchi Vihir). गडाच्या माथ्यावरून धोम धरण, पसरणी घाट आणि महाबळेश्वरच्या डोंगररांगांचे विहंगम दृश्य दिसते.",
     descEn:
-      "Kamalgad is a historic fort near Wai. This fort from the era of Chhatrapati Shivaji Maharaj holds great historical significance. From the fort, one can see stunning views of the Sahyadri ranges and Krishna valley. It is a favourite destination for trekkers.",
+      "Standing at an altitude of 4,511 feet, Kamalgad is unique because it lacks traditional man-made walls or gateways; its steep, natural rock faces provided sufficient defense. Also known as Kattalgad (Death Fort), it was historically used by the British to execute prisoners. The fort's most intriguing feature is the 'Geruchi Vihir' (Red Stone Well)—a deep, rectangular shaft carved directly into the rock. From the top, visitors can enjoy a breathtaking 360-degree view of the Dhom Dam, Pasarni Ghat, and the peaks of Mahabaleshwar.",
     timeMr: "सूर्योदय ते सूर्यास्त",
     timeEn: "Sunrise to Sunset",
     locationMr: "कमळगड, वाई तालुका, सातारा",
     locationEn: "Kamalgad, Wai Taluka, Satara",
-    locationUrl: null,
+    locationUrl: "https://maps.app.goo.gl/ckPoVewYZ3yWss2M7",
+  },
+  {
+    image: "/mandhardevi.jpg",
+    nameMr: "काशी विश्वेश्वर मंदिर",
+    nameEn: "Kashi Vishweshwar Temple",
+    tagMr: "धार्मिक",
+    tagEn: "Religious / Trekking",
+    icon: Mountain,
+    descMr:
+      "वाईच्या गणपती आळी घाटावर, ढोल्या गणपती मंदिराच्या अगदी शेजारीच काशी विश्वेश्वर मंदिर वसलेले आहे. भगवान शंकराला समर्पित असलेल्या या मंदिराला त्यावरील शेकडो वैशिष्ट्यपूर्ण कोरीव कामांमुळे 'शिल्पमंदिर' असेही म्हटले जाते. या मंदिराचे मुख्य आकर्षण म्हणजे एकाच अखंड काळ्या पाषाणात कोरलेला भव्य नंदी, जो ढोल्या गणपतीच्या मूर्तीसाठी वापरलेल्या पाषाणातूनच बनवण्यात आला आहे. मंदिराच्या शिखरावर सुमारे ११० देवड्या असून त्यामध्ये विविध देवदेवतांच्या सुबक मूर्ती कोरलेल्या आहेत.",
+    descEn:
+      "Located on the Ganpati Aali Ghat, right next to the Dholya Ganpati, the Kashi Vishweshwar Temple is a masterpiece of stone architecture. Dedicated to Lord Shiva, it is often called a 'Shilp-mandir' due to the hundreds of intricate carvings on its walls and spire (shikhara). The main attraction is the monolithic Nandi, carved from the same black stone as the Mahaganpati idol. The temple’s unique spire features nearly 110 small niches containing various deities, showcasing the finesse of Peshwa-era craftsmanship.",
+    timeMr: "सकाळी ६:०० ते संध्याकाळी ७:००",
+    timeEn: "6:00 AM to 7:00 PM",
+    locationMr: "गणपती आळी, वाई तालुका, सातारा.",
+    locationEn: "Ganpati Ali, Wai Taluka, Satara",
+    locationUrl: "https://maps.app.goo.gl/KCzi7pYGnri4Di9H8",
   },
 ];
 
@@ -69,6 +86,7 @@ const Tourism = () => {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const startTimer = () => {
+    if (timerRef.current) clearInterval(timerRef.current);
     timerRef.current = setInterval(() => {
       setCurrent((prev) => (prev + 1) % heroImages.length);
     }, 3500);
@@ -77,6 +95,7 @@ const Tourism = () => {
   useEffect(() => {
     startTimer();
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const goTo = (index: number) => {
@@ -185,7 +204,7 @@ const Tourism = () => {
                     <MapPin className="h-4 w-4 text-primary flex-shrink-0" />
                     <span className="text-muted-foreground">{t("ठिकाण", "Location")}:</span>
                     <a
-                      href={spot.locationUrl ?? `https://www.google.com/maps/search/${encodeURIComponent(lang === "mr" ? spot.locationMr : spot.locationEn)}`}
+                      href={spot.locationUrl ? spot.locationUrl : `https://www.google.com/maps/search/${encodeURIComponent(lang === "mr" ? spot.locationMr : spot.locationEn)}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="font-medium text-primary underline hover:opacity-80"
